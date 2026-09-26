@@ -11,6 +11,7 @@ from flask import (
 
 from dotenv import load_dotenv
 from supabase import create_client, Client
+
 from werkzeug.security import (
     generate_password_hash,
     check_password_hash
@@ -25,7 +26,7 @@ load_dotenv()
 
 DB_LINK = os.getenv("DB_LINK")
 DB_KEY = os.getenv("DB_KEY")
-FLASK_SECRET_KEY = "ttfu867"
+FLASK_SECRET_KEY = "fk234jkd"
 
 
 if not DB_LINK:
@@ -55,14 +56,11 @@ app.secret_key = FLASK_SECRET_KEY
 
 
 # ==================================================
-# HOME / LOGIN
+# HOME
 # ==================================================
 
 @app.route("/")
 def index():
-
-    # Якщо користувач вже увійшов
-    # відправляємо його на форум
 
     if "user_id" in session:
         return redirect(url_for("forum"))
@@ -78,48 +76,31 @@ def index():
 def register():
 
     name = request.form.get("name", "").strip()
-
     password = request.form.get("password", "")
-
     password_confirm = request.form.get(
         "password_confirm",
         ""
     )
 
-
-    # Перевірка полів
-
     if not name or not password:
-
         return render_template(
             "index.html",
             error="Заповніть усі поля."
         )
 
-
-    # Перевірка паролів
-
     if password != password_confirm:
-
         return render_template(
             "index.html",
             error="Паролі не співпадають."
         )
 
-
-    # Мінімальна довжина
-
     if len(password) < 6:
-
         return render_template(
             "index.html",
             error="Пароль повинен містити мінімум 6 символів."
         )
 
-
     try:
-
-        # Перевіряємо, чи існує користувач
 
         existing_user = (
             supabase
@@ -129,7 +110,6 @@ def register():
             .execute()
         )
 
-
         if existing_user.data:
 
             return render_template(
@@ -137,15 +117,7 @@ def register():
                 error="Користувач з таким ім'ям вже існує."
             )
 
-
-        # Хешуємо пароль
-
-        password_hash = generate_password_hash(
-            password
-        )
-
-
-        # Створюємо користувача
+        password_hash = generate_password_hash(password)
 
         result = (
             supabase
@@ -157,7 +129,6 @@ def register():
             .execute()
         )
 
-
         if not result.data:
 
             return render_template(
@@ -165,12 +136,10 @@ def register():
                 error="Не вдалося створити користувача."
             )
 
-
         return render_template(
             "index.html",
             success="Реєстрація успішна! Тепер увійдіть."
         )
-
 
     except Exception as e:
 
@@ -189,16 +158,8 @@ def register():
 @app.route("/login", methods=["POST"])
 def login():
 
-    name = request.form.get(
-        "name",
-        ""
-    ).strip()
-
-    password = request.form.get(
-        "password",
-        ""
-    )
-
+    name = request.form.get("name", "").strip()
+    password = request.form.get("password", "")
 
     if not name or not password:
 
@@ -207,10 +168,7 @@ def login():
             error="Введіть ім'я та пароль."
         )
 
-
     try:
-
-        # Знаходимо користувача
 
         result = (
             supabase
@@ -223,7 +181,6 @@ def login():
             .execute()
         )
 
-
         if not result.data:
 
             return render_template(
@@ -231,11 +188,7 @@ def login():
                 error="Неправильне ім'я або пароль."
             )
 
-
         user = result.data[0]
-
-
-        # Перевіряємо пароль
 
         if not check_password_hash(
             user["password"],
@@ -247,21 +200,12 @@ def login():
                 error="Неправильне ім'я або пароль."
             )
 
-
-        # Зберігаємо користувача
-        # у Flask session
-
         session["user_id"] = user["id"]
-
         session["user_name"] = user["name"]
-
-
-        # Після login → форум
 
         return redirect(
             url_for("forum")
         )
-
 
     except Exception as e:
 
@@ -294,21 +238,10 @@ def logout():
 @app.route("/forum")
 def forum():
 
-    # Неавторизований користувач
-    # не може зайти на форум
-
     if "user_id" not in session:
-
-        return redirect(
-            url_for("index")
-        )
-
+        return redirect(url_for("index"))
 
     try:
-
-        # ==========================================
-        # Отримуємо дискусії
-        # ==========================================
 
         discussions_result = (
             supabase
@@ -323,11 +256,6 @@ def forum():
 
         discussions = discussions_result.data
 
-
-        # ==========================================
-        # Отримуємо користувачів
-        # ==========================================
-
         users_result = (
             supabase
             .table("users")
@@ -335,16 +263,10 @@ def forum():
             .execute()
         )
 
-
         users = {
             user["id"]: user["name"]
             for user in users_result.data
         }
-
-
-        # ==========================================
-        # Додаємо ім'я автора
-        # ==========================================
 
         for discussion in discussions:
 
@@ -353,13 +275,11 @@ def forum():
                 "Unknown"
             )
 
-
         return render_template(
             "forum.html",
             discussions=discussions,
             user_name=session["user_name"]
         )
-
 
     except Exception as e:
 
@@ -378,26 +298,18 @@ def forum():
 )
 def create_discussion():
 
-    # Перевірка авторизації
-
     if "user_id" not in session:
-
-        return redirect(
-            url_for("index")
-        )
-
+        return redirect(url_for("index"))
 
     questions = request.form.get(
         "questions",
         ""
     ).strip()
 
-
     description = request.form.get(
         "description",
         ""
     ).strip()
-
 
     if not questions:
 
@@ -405,10 +317,7 @@ def create_discussion():
             url_for("forum")
         )
 
-
     try:
-
-        # Створюємо питання
 
         supabase.table("forum").insert({
 
@@ -416,18 +325,13 @@ def create_discussion():
 
             "description": description,
 
-            # Автор береться з session
-            # а не з HTML
-
             "author_id": session["user_id"]
 
         }).execute()
 
-
         return redirect(
             url_for("forum")
         )
-
 
     except Exception as e:
 
@@ -449,17 +353,13 @@ def create_discussion():
 def discussion(discussion_id):
 
     if "user_id" not in session:
-
-        return redirect(
-            url_for("index")
-        )
-
+        return redirect(url_for("index"))
 
     try:
 
-        # ==========================================
-        # Отримуємо питання
-        # ==========================================
+        # ------------------------------------------
+        # DISCUSSION
+        # ------------------------------------------
 
         discussion_result = (
             supabase
@@ -472,20 +372,17 @@ def discussion(discussion_id):
             .execute()
         )
 
-
         if not discussion_result.data:
 
             return "Питання не знайдено", 404
-
 
         discussion_data = (
             discussion_result.data[0]
         )
 
-
-        # ==========================================
-        # Автор питання
-        # ==========================================
+        # ------------------------------------------
+        # DISCUSSION AUTHOR
+        # ------------------------------------------
 
         author_result = (
             supabase
@@ -497,7 +394,6 @@ def discussion(discussion_id):
             )
             .execute()
         )
-
 
         if author_result.data:
 
@@ -511,10 +407,9 @@ def discussion(discussion_id):
                 "Unknown"
             )
 
-
-        # ==========================================
-        # Отримуємо відповіді
-        # ==========================================
+        # ------------------------------------------
+        # ANSWERS
+        # ------------------------------------------
 
         answers_result = (
             supabase
@@ -530,13 +425,11 @@ def discussion(discussion_id):
             .execute()
         )
 
-
         answers = answers_result.data
 
-
-        # ==========================================
-        # Отримуємо користувачів
-        # ==========================================
+        # ------------------------------------------
+        # USERS
+        # ------------------------------------------
 
         users_result = (
             supabase
@@ -545,16 +438,10 @@ def discussion(discussion_id):
             .execute()
         )
 
-
         users = {
             user["id"]: user["name"]
             for user in users_result.data
         }
-
-
-        # ==========================================
-        # Додаємо ім'я автора відповіді
-        # ==========================================
 
         for answer in answers:
 
@@ -563,17 +450,12 @@ def discussion(discussion_id):
                 "Unknown"
             )
 
-
         return render_template(
             "discussion.html",
-
             discussion=discussion_data,
-
             answers=answers,
-
             user_name=session["user_name"]
         )
-
 
     except Exception as e:
 
@@ -596,17 +478,12 @@ def discussion(discussion_id):
 def add_answer(discussion_id):
 
     if "user_id" not in session:
-
-        return redirect(
-            url_for("index")
-        )
-
+        return redirect(url_for("index"))
 
     answer = request.form.get(
         "answer",
         ""
     ).strip()
-
 
     if not answer:
 
@@ -616,7 +493,6 @@ def add_answer(discussion_id):
                 discussion_id=discussion_id
             )
         )
-
 
     try:
 
@@ -633,30 +509,21 @@ def add_answer(discussion_id):
             .execute()
         )
 
-
         if not discussion_result.data:
 
             return "Питання не знайдено", 404
 
-
-        # ==========================================
         # Створюємо відповідь
-        # ==========================================
 
         supabase.table("questions").insert({
 
             "answer": answer,
 
-            # Поточний користувач
-
             "user_id": session["user_id"],
-
-            # Поточна дискусія
 
             "discussion_id": discussion_id
 
         }).execute()
-
 
         return redirect(
             url_for(
@@ -664,7 +531,6 @@ def add_answer(discussion_id):
                 discussion_id=discussion_id
             )
         )
-
 
     except Exception as e:
 
@@ -674,6 +540,194 @@ def add_answer(discussion_id):
         )
 
         return "Помилка створення відповіді", 500
+
+
+# ==================================================
+# DELETE DISCUSSION
+# ==================================================
+
+@app.route(
+    "/delete-discussion/<int:discussion_id>",
+    methods=["POST"]
+)
+def delete_discussion(discussion_id):
+
+    if "user_id" not in session:
+        return redirect(url_for("index"))
+
+    try:
+
+        # ------------------------------------------
+        # Знаходимо дискусію
+        # ------------------------------------------
+
+        discussion_result = (
+            supabase
+            .table("forum")
+            .select(
+                "discussion_id, author_id"
+            )
+            .eq(
+                "discussion_id",
+                discussion_id
+            )
+            .execute()
+        )
+
+        if not discussion_result.data:
+
+            return "Дискусію не знайдено", 404
+
+        discussion_data = (
+            discussion_result.data[0]
+        )
+
+        # ------------------------------------------
+        # ПЕРЕВІРКА АВТОРА
+        # ------------------------------------------
+
+        if (
+            discussion_data["author_id"]
+            != session["user_id"]
+        ):
+
+            return (
+                "Ви можете видаляти тільки "
+                "свої дискусії",
+                403
+            )
+
+        # ------------------------------------------
+        # ВИДАЛЯЄМО ВІДПОВІДІ
+        # ------------------------------------------
+
+        supabase \
+            .table("questions") \
+            .delete() \
+            .eq(
+                "discussion_id",
+                discussion_id
+            ) \
+            .execute()
+
+        # ------------------------------------------
+        # ВИДАЛЯЄМО ДИСКУСІЮ
+        # ------------------------------------------
+
+        supabase \
+            .table("forum") \
+            .delete() \
+            .eq(
+                "discussion_id",
+                discussion_id
+            ) \
+            .execute()
+
+        return redirect(
+            url_for("forum")
+        )
+
+    except Exception as e:
+
+        print(
+            "DELETE DISCUSSION ERROR:",
+            e
+        )
+
+        return (
+            "Помилка видалення дискусії",
+            500
+        )
+
+
+# ==================================================
+# DELETE ANSWER
+# ==================================================
+
+@app.route(
+    "/delete-answer/<int:question_id>",
+    methods=["POST"]
+)
+def delete_answer(question_id):
+
+    if "user_id" not in session:
+        return redirect(url_for("index"))
+
+    try:
+
+        # ------------------------------------------
+        # ЗНАХОДИМО ВІДПОВІДЬ
+        # ------------------------------------------
+
+        answer_result = (
+            supabase
+            .table("questions")
+            .select(
+                "question_id, user_id, discussion_id"
+            )
+            .eq(
+                "question_id",
+                question_id
+            )
+            .execute()
+        )
+
+        if not answer_result.data:
+
+            return "Відповідь не знайдено", 404
+
+        answer_data = answer_result.data[0]
+
+        # ------------------------------------------
+        # ПЕРЕВІРКА АВТОРА
+        # ------------------------------------------
+
+        if (
+            answer_data["user_id"]
+            != session["user_id"]
+        ):
+
+            return (
+                "Ви можете видаляти тільки "
+                "свої відповіді",
+                403
+            )
+
+        discussion_id = (
+            answer_data["discussion_id"]
+        )
+
+        # ------------------------------------------
+        # ВИДАЛЯЄМО ВІДПОВІДЬ
+        # ------------------------------------------
+
+        supabase \
+            .table("questions") \
+            .delete() \
+            .eq(
+                "question_id",
+                question_id
+            ) \
+            .execute()
+
+        return redirect(
+            url_for(
+                "discussion",
+                discussion_id=discussion_id
+            )
+        )
+
+    except Exception as e:
+
+        print(
+            "DELETE ANSWER ERROR:",
+            e
+        )
+
+        return (
+            "Помилка видалення відповіді",
+            500
+        )
 
 
 # ==================================================

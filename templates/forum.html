@@ -19,11 +19,7 @@
 
 </head>
 
-
 <body>
-
-
-<!-- NAVBAR -->
 
 <header class="navbar">
 
@@ -34,13 +30,11 @@
         Forum
     </a>
 
-
     <div class="user-menu">
 
         <span>
             Привіт, {{ user_name }}!
         </span>
-
 
         <a href="/logout">
             Вийти
@@ -51,13 +45,8 @@
 </header>
 
 
-
-<!-- MAIN -->
-
 <main class="forum-container">
 
-
-    <!-- HEADER -->
 
     <div class="forum-header">
 
@@ -76,8 +65,7 @@
     </div>
 
 
-
-    <!-- CREATE QUESTION -->
+    <!-- CREATE DISCUSSION -->
 
     <section class="create-discussion">
 
@@ -85,12 +73,10 @@
             Створити питання
         </h2>
 
-
         <form
             action="/create-discussion"
             method="POST"
         >
-
 
             <label>
                 Питання
@@ -126,34 +112,27 @@
     </section>
 
 
-
     <!-- DISCUSSIONS -->
 
     <section class="discussions">
 
-
         {% if discussions %}
-
 
             {% for discussion in discussions %}
 
+                <article class="discussion">
 
-                <a
-                    href="{{ url_for(
-                        'discussion',
-                        discussion_id=discussion.discussion_id
-                    ) }}"
-                    class="discussion-link"
-                >
-
-
-                    <article class="discussion">
-
+                    <a
+                        href="{{ url_for(
+                            'discussion',
+                            discussion_id=discussion.discussion_id
+                        ) }}"
+                        class="discussion-link"
+                    >
 
                         <h2>
                             {{ discussion.questions }}
                         </h2>
-
 
                         {% if discussion.description %}
 
@@ -163,35 +142,54 @@
 
                         {% endif %}
 
-
-                        <div class="discussion-info">
-
-
-                            <span>
-                                Автор:
-                                {{ discussion.author_name }}
-                            </span>
+                    </a>
 
 
-                            <span>
-                                #{{ discussion.discussion_id }}
-                            </span>
+                    <div class="discussion-info">
+
+                        <span>
+                            Автор:
+                            {{ discussion.author_name }}
+                        </span>
+
+                        <span>
+                            #{{ discussion.discussion_id }}
+                        </span>
 
 
-                        </div>
+                        <!-- DELETE DISCUSSION -->
 
+                        {% if discussion.author_id == session["user_id"] %}
 
-                    </article>
+                            <form
+                                action="{{ url_for(
+                                    'delete_discussion',
+                                    discussion_id=discussion.discussion_id
+                                ) }}"
+                                method="POST"
+                                class="delete-form"
+                                onsubmit="return confirm('Ви точно хочете видалити цю дискусію? Всі відповіді також будуть видалені.');"
+                            >
 
+                                <button
+                                    type="submit"
+                                    class="delete-btn"
+                                >
+                                    Видалити
+                                </button>
 
-                </a>
+                            </form>
 
+                        {% endif %}
+
+                    </div>
+
+                </article>
 
             {% endfor %}
 
 
         {% else %}
-
 
             <div class="empty">
 
@@ -205,15 +203,11 @@
 
             </div>
 
-
         {% endif %}
-
 
     </section>
 
-
 </main>
-
 
 </body>
 

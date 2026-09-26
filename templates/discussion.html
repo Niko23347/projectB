@@ -25,10 +25,7 @@
 <body>
 
 
-<!-- NAVBAR -->
-
 <header class="navbar">
-
 
     <a
         href="/forum"
@@ -44,22 +41,19 @@
             {{ user_name }}
         </span>
 
-
         <a href="/logout">
             Вийти
         </a>
 
     </div>
 
-
 </header>
 
 
-
-<!-- CONTENT -->
-
 <main class="discussion-container">
 
+
+    <!-- BACK -->
 
     <a
         href="/forum"
@@ -69,11 +63,9 @@
     </a>
 
 
-
-    <!-- QUESTION -->
+    <!-- MAIN QUESTION -->
 
     <article class="main-question">
-
 
         <h1>
             {{ discussion.questions }}
@@ -91,7 +83,6 @@
 
         <div class="discussion-info">
 
-
             <span>
                 Автор:
                 {{ discussion.author_name }}
@@ -103,11 +94,34 @@
             </span>
 
 
+            <!-- DELETE DISCUSSION -->
+
+            {% if discussion.author_id == session["user_id"] %}
+
+                <form
+                    action="{{ url_for(
+                        'delete_discussion',
+                        discussion_id=discussion.discussion_id
+                    ) }}"
+                    method="POST"
+                    class="delete-form"
+                    onsubmit="return confirm('Ви точно хочете видалити цю дискусію? Всі відповіді також будуть видалені.');"
+                >
+
+                    <button
+                        type="submit"
+                        class="delete-btn"
+                    >
+                        Видалити дискусію
+                    </button>
+
+                </form>
+
+            {% endif %}
+
         </div>
 
-
     </article>
-
 
 
     <!-- ANSWERS -->
@@ -129,9 +143,41 @@
                 <article class="answer">
 
 
-                    <div class="answer-author">
+                    <div class="answer-header">
 
-                        {{ answer.user_name }}
+
+                        <div class="answer-author">
+
+                            {{ answer.user_name }}
+
+                        </div>
+
+
+                        <!-- DELETE ANSWER -->
+
+                        {% if answer.user_id == session["user_id"] %}
+
+                            <form
+                                action="{{ url_for(
+                                    'delete_answer',
+                                    question_id=answer.question_id
+                                ) }}"
+                                method="POST"
+                                class="delete-form"
+                                onsubmit="return confirm('Ви точно хочете видалити цю відповідь?');"
+                            >
+
+                                <button
+                                    type="submit"
+                                    class="delete-btn"
+                                >
+                                    Видалити
+                                </button>
+
+                            </form>
+
+                        {% endif %}
+
 
                     </div>
 
@@ -171,11 +217,9 @@
     </section>
 
 
-
     <!-- ADD ANSWER -->
 
     <section class="answer-form">
-
 
         <h2>
             Твоя відповідь
@@ -189,7 +233,6 @@
             ) }}"
             method="POST"
         >
-
 
             <textarea
                 name="answer"
@@ -205,16 +248,40 @@
                 Відповісти
             </button>
 
-
         </form>
-
 
     </section>
 
 
 </main>
 
+    <script>
+setInterval(async function () {
 
+    const response = await fetch(window.location.href);
+
+    const html = await response.text();
+
+    const parser = new DOMParser();
+
+    const newPage = parser.parseFromString(
+        html,
+        "text/html"
+    );
+
+    const newAnswers =
+        newPage.querySelector(".answers");
+
+    const currentAnswers =
+        document.querySelector(".answers");
+
+    if (newAnswers && currentAnswers) {
+        currentAnswers.innerHTML =
+            newAnswers.innerHTML;
+    }
+
+}, 2000);
+</script>
 </body>
 
 </html>
