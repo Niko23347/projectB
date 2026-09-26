@@ -1,32 +1,46 @@
-
 <!DOCTYPE html>
 <html lang="uk">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Forum</title>
 
     <link
         rel="stylesheet"
-        href="{{ url_for('static', filename='/styles/style.css') }}"
+        href="{{ url_for('static', filename='styles/style.css') }}"
     >
+
 </head>
+
 
 <body>
 
+
+<!-- NAVBAR -->
+
 <header class="navbar">
 
-    <div class="logo">
+    <a
+        href="/forum"
+        class="logo"
+    >
         Forum
-    </div>
+    </a>
+
 
     <div class="user-menu">
 
         <span>
             Привіт, {{ user_name }}!
         </span>
+
 
         <a href="/logout">
             Вийти
@@ -37,77 +51,170 @@
 </header>
 
 
+
+<!-- MAIN -->
+
 <main class="forum-container">
+
+
+    <!-- HEADER -->
 
     <div class="forum-header">
 
         <div>
-            <h1>Форум</h1>
+
+            <h1>
+                Форум
+            </h1>
 
             <p>
                 Обговорюй питання та допомагай іншим.
             </p>
-        </div>
 
-        <button class="new-discussion">
-            + Нова дискусія
-        </button>
+        </div>
 
     </div>
 
 
+
+    <!-- CREATE QUESTION -->
+
+    <section class="create-discussion">
+
+        <h2>
+            Створити питання
+        </h2>
+
+
+        <form
+            action="/create-discussion"
+            method="POST"
+        >
+
+
+            <label>
+                Питання
+            </label>
+
+            <input
+                type="text"
+                name="questions"
+                placeholder="Наприклад: Як підключити Flask до Supabase?"
+                required
+            >
+
+
+            <label>
+                Опис
+            </label>
+
+            <textarea
+                name="description"
+                placeholder="Опишіть своє питання детальніше..."
+            ></textarea>
+
+
+            <button
+                type="submit"
+                class="new-discussion"
+            >
+                Опублікувати
+            </button>
+
+        </form>
+
+    </section>
+
+
+
+    <!-- DISCUSSIONS -->
+
     <section class="discussions">
+
 
         {% if discussions %}
 
+
             {% for discussion in discussions %}
 
-                <article class="discussion">
 
-                    <h2>
-                        {{ discussion.questions }}
-                    </h2>
+                <a
+                    href="{{ url_for(
+                        'discussion',
+                        discussion_id=discussion.discussion_id
+                    ) }}"
+                    class="discussion-link"
+                >
 
-                    <p>
-                        {{ discussion.description }}
-                    </p>
 
-                    <div class="discussion-info">
+                    <article class="discussion">
 
-                        <span>
-                            Discussion #{{ discussion.discussion_id }}
-                        </span>
 
-                        <span>
-                            Автор ID: {{ discussion.author_id }}
-                        </span>
+                        <h2>
+                            {{ discussion.questions }}
+                        </h2>
 
-                    </div>
 
-                </article>
+                        {% if discussion.description %}
+
+                            <p>
+                                {{ discussion.description }}
+                            </p>
+
+                        {% endif %}
+
+
+                        <div class="discussion-info">
+
+
+                            <span>
+                                Автор:
+                                {{ discussion.author_name }}
+                            </span>
+
+
+                            <span>
+                                #{{ discussion.discussion_id }}
+                            </span>
+
+
+                        </div>
+
+
+                    </article>
+
+
+                </a>
+
 
             {% endfor %}
 
+
         {% else %}
+
 
             <div class="empty">
 
                 <h2>
-                    Поки що немає дискусій
+                    Поки що немає питань
                 </h2>
 
                 <p>
-                    Створи першу дискусію!
+                    Створи перше питання!
                 </p>
 
             </div>
 
+
         {% endif %}
+
 
     </section>
 
+
 </main>
 
-</body>
-</html>
 
+</body>
+
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {{ discussion.questions }}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='styles/style.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+
+<!-- NAVBAR -->
+
+<header class="navbar">
+
+
+    <a
+        href="/forum"
+        class="logo"
+    >
+        Forum
+    </a>
+
+
+    <div class="user-menu">
+
+        <span>
+            {{ user_name }}
+        </span>
+
+
+        <a href="/logout">
+            Вийти
+        </a>
+
+    </div>
+
+
+</header>
+
+
+
+<!-- CONTENT -->
+
+<main class="discussion-container">
+
+
+    <a
+        href="/forum"
+        class="back-link"
+    >
+        ← Назад до форуму
+    </a>
+
+
+
+    <!-- QUESTION -->
+
+    <article class="main-question">
+
+
+        <h1>
+            {{ discussion.questions }}
+        </h1>
+
+
+        {% if discussion.description %}
+
+            <p>
+                {{ discussion.description }}
+            </p>
+
+        {% endif %}
+
+
+        <div class="discussion-info">
+
+
+            <span>
+                Автор:
+                {{ discussion.author_name }}
+            </span>
+
+
+            <span>
+                #{{ discussion.discussion_id }}
+            </span>
+
+
+        </div>
+
+
+    </article>
+
+
+
+    <!-- ANSWERS -->
+
+    <h2 class="answers-title">
+        Відповіді
+    </h2>
+
+
+    <section class="answers">
+
+
+        {% if answers %}
+
+
+            {% for answer in answers %}
+
+
+                <article class="answer">
+
+
+                    <div class="answer-author">
+
+                        {{ answer.user_name }}
+
+                    </div>
+
+
+                    <div class="answer-content">
+
+                        {{ answer.answer }}
+
+                    </div>
+
+
+                </article>
+
+
+            {% endfor %}
+
+
+        {% else %}
+
+
+            <div class="empty">
+
+                <p>
+                    Поки що немає відповідей.
+                </p>
+
+                <p>
+                    Будь першим, хто відповість!
+                </p>
+
+            </div>
+
+
+        {% endif %}
+
+
+    </section>
+
+
+
+    <!-- ADD ANSWER -->
+
+    <section class="answer-form">
+
+
+        <h2>
+            Твоя відповідь
+        </h2>
+
+
+        <form
+            action="{{ url_for(
+                'add_answer',
+                discussion_id=discussion.discussion_id
+            ) }}"
+            method="POST"
+        >
+
+
+            <textarea
+                name="answer"
+                placeholder="Напиши свою відповідь..."
+                required
+            ></textarea>
+
+
+            <button
+                type="submit"
+                class="new-discussion"
+            >
+                Відповісти
+            </button>
+
+
+        </form>
+
+
+    </section>
+
+
+</main>
+
+
+</body>
+
+</html>

@@ -2,129 +2,247 @@
 <html lang="uk">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Forum — Вхід</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='/styles/style.css') }}">
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='styles/style.css') }}"
+    >
+
 </head>
 
-<body>
 
-    <div class="container">
-
-        <div class="auth-box">
-
-            <h1>Forum</h1>
-
-            <div class="tabs">
-                <button id="loginTab" class="tab active" onclick="showLogin()">
-                    Вхід
-                </button>
-
-                <button id="registerTab" class="tab" onclick="showRegister()">
-                    Реєстрація
-                </button>
-            </div>
+<body class="auth-page">
 
 
-            <!-- LOGIN -->
+<div class="auth-container">
 
-            <form id="loginForm" action="/login" method="POST">
+    <div class="auth-box">
 
-                <h2>Вхід</h2>
+        <h1>Forum</h1>
 
-                <label for="loginName">
-                    Ім'я
-                </label>
-
-                <input type="text" id="loginName" name="name" placeholder="Введіть ім'я" required>
-
-                <label for="loginPassword">
-                    Пароль
-                </label>
-
-                <input type="password" id="loginPassword" name="password" placeholder="Введіть пароль" required>
-
-                <button type="submit" class="submit-btn">
-                    Увійти
-                </button>
-
-            </form>
+        <p class="auth-subtitle">
+            Спілкуйся. Запитуй. Допомагай.
+        </p>
 
 
-            <!-- REGISTER -->
+        <!-- TABS -->
 
-            <form id="registerForm" action="/register" method="POST" style="display: none;">
+        <div class="tabs">
 
-                <h2>Реєстрація</h2>
-
-                <label for="registerName">
-                    Ім'я
-                </label>
-
-                <input type="text" id="registerName" name="name" placeholder="Ваше ім'я" required>
-
-                <label for="registerPassword">
-                    Пароль
-                </label>
-
-                <input type="password" id="registerPassword" name="password" placeholder="Придумайте пароль" required>
-
-                <label for="passwordConfirm">
-                    Повторіть пароль
-                </label>
-
-                <input type="password" id="passwordConfirm" name="password_confirm" placeholder="Повторіть пароль"
-                    required>
-
-                <button type="submit" class="submit-btn">
-                    Зареєструватися
-                </button>
-
-            </form>
+            <button
+                id="loginTab"
+                class="tab active"
+                onclick="showLogin()"
+            >
+                Вхід
+            </button>
 
 
-            {% if error %}
-            <div class="message error">
-                {{ error }}
-            </div>
-            {% endif %}
-
-            {% if success %}
-            <div class="message success">
-                {{ success }}
-            </div>
-            {% endif %}
+            <button
+                id="registerTab"
+                class="tab"
+                onclick="showRegister()"
+            >
+                Реєстрація
+            </button>
 
         </div>
 
+
+        <!-- ERROR -->
+
+        {% if error %}
+
+            <div class="message error">
+                {{ error }}
+            </div>
+
+        {% endif %}
+
+
+        <!-- SUCCESS -->
+
+        {% if success %}
+
+            <div class="message success">
+                {{ success }}
+            </div>
+
+        {% endif %}
+
+
+        <!-- LOGIN -->
+
+        <form
+            id="loginForm"
+            action="/login"
+            method="POST"
+        >
+
+            <h2>Вхід</h2>
+
+
+            <label for="loginName">
+                Ім'я
+            </label>
+
+            <input
+                type="text"
+                id="loginName"
+                name="name"
+                placeholder="Введіть ім'я"
+                required
+            >
+
+
+            <label for="loginPassword">
+                Пароль
+            </label>
+
+            <input
+                type="password"
+                id="loginPassword"
+                name="password"
+                placeholder="Введіть пароль"
+                required
+            >
+
+
+            <button
+                type="submit"
+                class="submit-btn"
+            >
+                Увійти
+            </button>
+
+        </form>
+
+
+        <!-- REGISTER -->
+
+        <form
+            id="registerForm"
+            action="/register"
+            method="POST"
+            style="display: none;"
+        >
+
+            <h2>Реєстрація</h2>
+
+
+            <label for="registerName">
+                Ім'я
+            </label>
+
+            <input
+                type="text"
+                id="registerName"
+                name="name"
+                placeholder="Придумайте ім'я"
+                required
+            >
+
+
+            <label for="registerPassword">
+                Пароль
+            </label>
+
+            <input
+                type="password"
+                id="registerPassword"
+                name="password"
+                placeholder="Придумайте пароль"
+                required
+            >
+
+
+            <label for="passwordConfirm">
+                Повторіть пароль
+            </label>
+
+            <input
+                type="password"
+                id="passwordConfirm"
+                name="password_confirm"
+                placeholder="Повторіть пароль"
+                required
+            >
+
+
+            <button
+                type="submit"
+                class="submit-btn"
+            >
+                Зареєструватися
+            </button>
+
+        </form>
+
     </div>
 
-
-    <script>
-
-        function showLogin() {
-
-            document.getElementById("loginForm").style.display = "block";
-            document.getElementById("registerForm").style.display = "none";
-
-            document.getElementById("loginTab").classList.add("active");
-            document.getElementById("registerTab").classList.remove("active");
-        }
+</div>
 
 
-        function showRegister() {
+<script>
 
-            document.getElementById("loginForm").style.display = "none";
-            document.getElementById("registerForm").style.display = "block";
+function showLogin() {
 
-            document.getElementById("loginTab").classList.remove("active");
-            document.getElementById("registerTab").classList.add("active");
-        }
+    document.getElementById(
+        "loginForm"
+    ).style.display = "block";
 
-    </script>
+
+    document.getElementById(
+        "registerForm"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "loginTab"
+    ).classList.add("active");
+
+
+    document.getElementById(
+        "registerTab"
+    ).classList.remove("active");
+
+}
+
+
+function showRegister() {
+
+    document.getElementById(
+        "loginForm"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "registerForm"
+    ).style.display = "block";
+
+
+    document.getElementById(
+        "loginTab"
+    ).classList.remove("active");
+
+
+    document.getElementById(
+        "registerTab"
+    ).classList.add("active");
+
+}
+
+</script>
+
 
 </body>
 
