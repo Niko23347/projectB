@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Forum</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='/styles/style.css') }}"
+    >
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="logo">
+        Forum
+    </div>
+
+    <div class="user-menu">
+
+        <span>
+            Привіт, {{ user_name }}!
+        </span>
+
+        <a href="/logout">
+            Вийти
+        </a>
+
+    </div>
+
+</header>
+
+
+<main class="forum-container">
+
+    <div class="forum-header">
+
+        <div>
+            <h1>Форум</h1>
+
+            <p>
+                Обговорюй питання та допомагай іншим.
+            </p>
+        </div>
+
+        <button class="new-discussion">
+            + Нова дискусія
+        </button>
+
+    </div>
+
+
+    <section class="discussions">
+
+        {% if discussions %}
+
+            {% for discussion in discussions %}
+
+                <article class="discussion">
+
+                    <h2>
+                        {{ discussion.questions }}
+                    </h2>
+
+                    <p>
+                        {{ discussion.description }}
+                    </p>
+
+                    <div class="discussion-info">
+
+                        <span>
+                            Discussion #{{ discussion.discussion_id }}
+                        </span>
+
+                        <span>
+                            Автор ID: {{ discussion.author_id }}
+                        </span>
+
+                    </div>
+
+                </article>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="empty">
+
+                <h2>
+                    Поки що немає дискусій
+                </h2>
+
+                <p>
+                    Створи першу дискусію!
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+</body>
+</html>
+

@@ -6,45 +6,52 @@ from supabase import create_client, Client
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
+# =========================
+# ENV
+# =========================
+
 load_dotenv()
 
 DB_LINK = os.getenv("DB_LINK")
 DB_KEY = os.getenv("DB_KEY")
-FLASK_SECRET_KEY = os.getenv("FLASK_SECRET_KEY")
+FLASK_SECRET_KEY = "hbyuft56"
 
 if not DB_LINK or not DB_KEY:
     raise RuntimeError("DB_LINK або DB_KEY не знайдено в .env")
 
-# Supabase
+
+
+# =========================
+# SUPABASE
+# =========================
+
 supabase: Client = create_client(
     DB_LINK,
     DB_KEY
 )
 
 
-# Flask
+# =========================
+# FLASK
+# =========================
+
 app = Flask(__name__)
-app.secret_key = "adasdawe123"
+app.secret_key = FLASK_SECRET_KEY
 
 
 # =========================
-# HOME
+# LOGIN PAGE
 # =========================
 
 @app.route("/")
 def index():
 
+    # Якщо вже залогінений —
+    # одразу на форум
     if "user_id" in session:
-        return render_template(
-            "index.html",
-            logged_in=True,
-            user_name=session["user_name"]
-        )
+        return redirect(url_for("forum"))
 
-    return render_template(
-        "index.html",
-        logged_in=False
-    )
+    return render_template("index.html")
 
 
 # =========================
@@ -93,25 +100,14 @@ def register():
                 error="Користувач з таким ім'ям уже існує."
             )
 
-        # Hash пароля
+        # Хешуємо пароль
         password_hash = generate_password_hash(password)
 
         # Створюємо користувача
-        result = (
-            supabase
-            .table("users")
-            .insert({
-                "name": name,
-                "password": password_hash
-            })
-            .execute()
-        )
-
-        if not result.data:
-            return render_template(
-                "index.html",
-                error="Не вдалося створити користувача."
-            )
+        supabase.table("users").insert({
+            "name": name,
+            "password": password_hash
+        }).execute()
 
         return render_template(
             "index.html",
@@ -146,7 +142,6 @@ def login():
 
     try:
 
-        # Шукаємо користувача
         result = (
             supabase
             .table("users")
@@ -174,11 +169,12 @@ def login():
                 error="Неправильне ім'я або пароль."
             )
 
-        # Session
+        # Зберігаємо дані користувача
         session["user_id"] = user["id"]
         session["user_name"] = user["name"]
 
-        return redirect(url_for("index"))
+        # ПЕРЕХОДИМО НА ФОРУМ
+        return redirect(url_for("forum"))
 
     except Exception as e:
 
@@ -188,6 +184,44 @@ def login():
             "index.html",
             error="Помилка під час входу."
         )
+
+
+# =========================
+# FORUM
+# =========================
+
+@app.route("/forum")
+def forum():
+
+    # Якщо не залогінений —
+    # повертаємо на login
+    if "user_id" not in session:
+        return redirect(url_for("index"))
+
+    try:
+
+        # Отримуємо всі дискусії
+        result = (
+            supabase
+            .table("forum")
+            .select("*")
+            .order("discussion_id", desc=True)
+            .execute()
+        )
+
+        discussions = result.data
+
+        return render_template(
+            "forum.html",
+            discussions=discussions,
+            user_name=session["user_name"]
+        )
+
+    except Exception as e:
+
+        print("FORUM ERROR:", e)
+
+        return "Помилка завантаження форуму", 500
 
 
 # =========================
